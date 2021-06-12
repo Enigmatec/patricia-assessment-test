@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\UserResource;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -30,7 +31,7 @@ class AuthController extends Controller
             'status' => true,
             'msg' => 'Login Sucessful',
             'token' => $token,
-            'user' => $user 
+            'user' => new UserResource($user)
         ]);
 
     }

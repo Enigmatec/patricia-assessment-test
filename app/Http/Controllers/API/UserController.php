@@ -27,14 +27,15 @@ class UserController extends Controller
         return response()->json([
             'status' => true,
             'msg' => 'User account created',
-            'token' => $token
+            'token' => $token,
+            'user' => new UserResource($user)
         ]);
     }
 
     public function showUser($id)
     {
         $user = User::where('id', $id)->first();
-        if(!$user){
+        if(! $user){
             return response()->json([
                 'status'=> false,
                 'message' => 'No User Found'
@@ -44,7 +45,7 @@ class UserController extends Controller
         return response()->json([
             'status' => true,
             'message' => 'User Found',
-            'user' => $user 
+            'user' => new UserResource($user) 
         ]);
     }
 
@@ -59,7 +60,7 @@ class UserController extends Controller
         $data['password'] =  bcrypt($request->password);
 
         $user = User::where('id', $id)->first();
-        if(!$user){
+        if(! $user){
             return response()->json([
                 'status' => false,
                 'message' => 'User not found'
@@ -70,7 +71,7 @@ class UserController extends Controller
         return response()->json([
             'status' => true,
             'message' => 'User data updated',
-            'user' => $user
+            'user' => new UserResource($user)
         ]);
 
     }
@@ -78,7 +79,7 @@ class UserController extends Controller
     public function deleteUser($id)
     {
         $user = User::where('id', $id)->first();
-        if(!$user){
+        if(! $user){
             return response()->json([
                 'status' => false,
                 'message' => 'User not found'
