@@ -65,7 +65,7 @@ class UserController extends Controller
         $data = $request->all();
         $validator = Validator::make($data, [
             'name' => ['required'],
-            'phone' => ['required', 'digits:11', Rule::unique('users')->ignore($id)],
+            'phone' => ['required', 'string', Rule::unique('users')->ignore($id)],
             'email' => ['required', 'email', Rule::unique('users')->ignore($id)],
             'password' => ['required', 'confirmed', 'min:6']
         ]);
