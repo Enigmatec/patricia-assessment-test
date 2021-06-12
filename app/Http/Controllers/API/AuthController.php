@@ -32,7 +32,7 @@ class AuthController extends Controller
             'msg' => 'Login Sucessful',
             'token' => $token,
             'user' => new UserResource($user)
-        ]);
+        ], 200);
 
     }
 

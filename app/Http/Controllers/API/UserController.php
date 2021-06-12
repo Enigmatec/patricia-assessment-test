@@ -7,20 +7,31 @@ use App\Http\Resources\UserResource;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\Validator;
+
 
 class UserController extends Controller
 {
 
     public function addUser(Request $request)
-    {
-        $data = $request->validate([
+    {        
+        $data = $request->all();
+        $validator = Validator::make($data, [
             'name' => ['required'],
-            'phone' => ['required', 'digits:11', 'unique:users,phone'],
+            'phone' => ['required', 'string', 'unique:users,phone'],
             'email' => ['required', 'email', 'unique:users,email'],
             'password' => ['required', 'confirmed', 'min:6']
         ]);
-        $data['password'] = bcrypt($request->password);
 
+        if($validator->fails()){
+            return response()->json([
+                'status' => false,
+                'message' => $validator->errors()
+            ], 400);
+        }
+        
+        $data['password'] = bcrypt($data['password']);
+       
         $user = User::create($data);
         $token = $user->createToken('token')->accessToken;
 
@@ -29,7 +40,7 @@ class UserController extends Controller
             'msg' => 'User account created',
             'token' => $token,
             'user' => new UserResource($user)
-        ]);
+        ], 201);
     }
 
     public function showUser($id)
@@ -46,18 +57,27 @@ class UserController extends Controller
             'status' => true,
             'message' => 'User Found',
             'user' => new UserResource($user) 
-        ]);
+        ], 200);
     }
 
     public function updateUser(Request $request, $id)
     {
-        $data = $request->validate([
+        $data = $request->all();
+        $validator = Validator::make($data, [
             'name' => ['required'],
             'phone' => ['required', 'digits:11', Rule::unique('users')->ignore($id)],
             'email' => ['required', 'email', Rule::unique('users')->ignore($id)],
             'password' => ['required', 'confirmed', 'min:6']
         ]);
-        $data['password'] =  bcrypt($request->password);
+
+        if($validator->fails()){
+            return response()->json([
+                'status' => false,
+                'message' => $validator->errors()
+            ], 400);
+        }
+
+        $data['password'] =  bcrypt($data['password']);
 
         $user = User::where('id', $id)->first();
         if(! $user){
@@ -72,7 +92,7 @@ class UserController extends Controller
             'status' => true,
             'message' => 'User data updated',
             'user' => new UserResource($user)
-        ]);
+        ], 201);
 
     }
 
@@ -90,7 +110,7 @@ class UserController extends Controller
         return response()->json([
             'status' => true,
             'message' => 'User Account Deleted',
-            'user' => $user
+            'user' => new UserResource($user)
         ]);
     }
 }
