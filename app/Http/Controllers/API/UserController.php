@@ -53,22 +53,13 @@ class UserController extends Controller
 
     public function updateUser(Request $request, $id)
     {
-        $data = $request->all();
-        $validator = Validator::make($data, [
+        $data = $request->validate([
             'name' => ['required'],
             'phone' => ['required', 'phoneNumber', Rule::unique('users')->ignore($id)],
             'email' => ['required', 'email', Rule::unique('users')->ignore($id)],
             'password' => ['required', 'confirmed', 'min:6']
         ]);
-
-        if($validator->fails()){
-            return response()->json([
-                'status' => false,
-                'message' => $validator->errors()
-            ], 400);
-        }
-
-        $data['password'] =  bcrypt($data['password']);
+        $data['password'] =  bcrypt($request->password);
 
         $user = User::where('id', $id)->first();
         if(! $user){
