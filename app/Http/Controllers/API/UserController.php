@@ -15,22 +15,13 @@ class UserController extends Controller
 
     public function addUser(Request $request)
     {        
-        $data = $request->all();
-        $validator = Validator::make($data, [
+        $data = $request->validate([
             'name' => ['required'],
-            'phone' => ['required', 'string', 'unique:users,phone'],
+            'phone' => ['required', 'phoneNumber', 'unique:users,phone'],
             'email' => ['required', 'email', 'unique:users,email'],
             'password' => ['required', 'confirmed', 'min:6']
         ]);
-
-        if($validator->fails()){
-            return response()->json([
-                'status' => false,
-                'message' => $validator->errors()
-            ], 400);
-        }
-        
-        $data['password'] = bcrypt($data['password']);
+        $data['password'] = bcrypt($request->password);
        
         $user = User::create($data);
         $token = $user->createToken('token')->accessToken;
@@ -65,7 +56,7 @@ class UserController extends Controller
         $data = $request->all();
         $validator = Validator::make($data, [
             'name' => ['required'],
-            'phone' => ['required', 'string', Rule::unique('users')->ignore($id)],
+            'phone' => ['required', 'phoneNumber', Rule::unique('users')->ignore($id)],
             'email' => ['required', 'email', Rule::unique('users')->ignore($id)],
             'password' => ['required', 'confirmed', 'min:6']
         ]);
